@@ -1,5 +1,9 @@
 import { useState } from "react";
-import { Palette, Sparkles, Code2, Zap, ArrowRight, RotateCcw } from "lucide-react";
+import {
+  Palette, Sparkles, Code2, Zap, ArrowRight, RotateCcw,
+  Upload, Eye, Download, ChevronDown, Image, Layers, Pipette,
+  FileCode, CheckCircle2, Shield, Gauge, Plus, Minus, Menu, X
+} from "lucide-react";
 import ImageUploadZone from "@/components/ImageUploadZone";
 import SwatchGrid from "@/components/SwatchGrid";
 import MoodBadge from "@/components/MoodBadge";
@@ -10,22 +14,87 @@ import { useToast } from "@/hooks/use-toast";
 
 type AppState = "idle" | "processing" | "result";
 
+const NAV_LINKS = ["Features", "How It Works", "FAQ"];
+
+const FEATURES = [
+  {
+    icon: Pipette,
+    title: "Smart Color Extraction",
+    desc: "Advanced median-cut quantization algorithm identifies dominant colors from any image with precision.",
+  },
+  {
+    icon: Layers,
+    title: "Role Assignment",
+    desc: "Automatically assigns functional roles — primary, secondary, accent, background — based on luminance & saturation.",
+  },
+  {
+    icon: FileCode,
+    title: "Production-Ready Output",
+    desc: "Export as Tailwind config, CSS variables, JSON, or ready-to-paste HTML/JSX snippets.",
+  },
+  {
+    icon: Shield,
+    title: "Accessibility Checks",
+    desc: "WCAG contrast ratio analysis ensures your palette meets accessibility standards out of the box.",
+  },
+  {
+    icon: Gauge,
+    title: "Instant Processing",
+    desc: "Client-side processing means zero server latency — your palette is ready in under a second.",
+  },
+  {
+    icon: Eye,
+    title: "Live Preview",
+    desc: "See your extracted colors visualized as interactive swatches with hex, RGB, and nearest Tailwind values.",
+  },
+];
+
+const STEPS = [
+  { num: "01", icon: Upload, title: "Upload", desc: "Drop any image — brand photo, UI screenshot, or poster." },
+  { num: "02", icon: Sparkles, title: "Extract", desc: "Smart quantization identifies dominant colors & assigns roles." },
+  { num: "03", icon: Eye, title: "Preview", desc: "Interactive swatches with accessibility warnings & mood analysis." },
+  { num: "04", icon: Download, title: "Export", desc: "Copy Tailwind config, CSS vars, or download the full palette." },
+];
+
+const FAQS = [
+  {
+    q: "What image formats are supported?",
+    a: "Palette AI supports JPEG, PNG, WebP, GIF, and BMP formats. For best results, use high-quality images with distinct colors.",
+  },
+  {
+    q: "How many colors are extracted?",
+    a: "By default, we extract 6 dominant colors and assign them functional roles (primary, secondary, accent, highlight, background, text).",
+  },
+  {
+    q: "Is my image uploaded to a server?",
+    a: "No. All processing happens entirely in your browser using Canvas API. Your images never leave your device.",
+  },
+  {
+    q: "Can I use the output in production?",
+    a: "Absolutely. The generated Tailwind config and CSS variables are production-ready and can be pasted directly into your project.",
+  },
+  {
+    q: "Does it check for accessibility?",
+    a: "Yes. We run WCAG contrast ratio checks on color pairs and flag any combinations that don't meet AA or AAA standards.",
+  },
+];
+
 const Index = () => {
   const [state, setState] = useState<AppState>("idle");
   const [selectedImage, setSelectedImage] = useState<File | null>(null);
   const [result, setResult] = useState<PaletteResult | null>(null);
   const [progress, setProgress] = useState(0);
+  const [openFaq, setOpenFaq] = useState<number | null>(null);
+  const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const { toast } = useToast();
 
   const handleExtract = async () => {
     if (!selectedImage) return;
     setState("processing");
     setProgress(0);
-
     const timer1 = setTimeout(() => setProgress(30), 300);
     const timer2 = setTimeout(() => setProgress(60), 700);
     const timer3 = setTimeout(() => setProgress(85), 1200);
-
     try {
       const palette = await extractColorsFromImage(selectedImage);
       clearTimeout(timer1);
@@ -52,53 +121,219 @@ const Index = () => {
     setProgress(0);
   };
 
+  const scrollTo = (id: string) => {
+    document.getElementById(id)?.scrollIntoView({ behavior: "smooth" });
+    setMobileMenuOpen(false);
+  };
+
   return (
-    <div className="min-h-screen bg-background">
-      {/* Header */}
-      <header className="border-b border-border bg-card/50 backdrop-blur-sm sticky top-0 z-50">
-        <div className="container max-w-6xl mx-auto px-4 py-4 flex items-center justify-between">
-          <div className="flex items-center gap-3">
-            <div className="p-2 rounded-xl gradient-accent">
-              <Palette className="w-5 h-5 text-accent-foreground" />
+    <div className="min-h-screen bg-background overflow-x-hidden">
+      {/* ───── NAVBAR ───── */}
+      <header className="fixed top-0 w-full z-50 border-b border-border/50 bg-background/80 backdrop-blur-xl">
+        <div className="container max-w-6xl mx-auto px-4 h-16 flex items-center justify-between">
+          <div className="flex items-center gap-2.5">
+            <div className="p-1.5 rounded-lg gradient-accent">
+              <Palette className="w-4 h-4 text-accent-foreground" />
             </div>
-            <span className="text-lg font-bold font-display text-foreground">Palette AI</span>
+            <span className="text-base font-bold font-display text-foreground tracking-tight">
+              Palette AI<sup className="text-accent text-[10px] ml-0.5">●</sup>
+            </span>
           </div>
-          {state === "result" && (
+
+          <nav className="hidden md:flex items-center gap-8">
+            {NAV_LINKS.map((link) => (
+              <button
+                key={link}
+                onClick={() => scrollTo(link.toLowerCase().replace(/\s+/g, "-"))}
+                className="text-sm text-muted-foreground hover:text-foreground transition-colors font-display"
+              >
+                {link}
+              </button>
+            ))}
+          </nav>
+
+          <div className="flex items-center gap-3">
+            {state === "result" && (
+              <button
+                onClick={handleReset}
+                className="hidden sm:flex items-center gap-1.5 text-sm text-muted-foreground hover:text-foreground transition-colors"
+              >
+                <RotateCcw className="w-3.5 h-3.5" />
+                Reset
+              </button>
+            )}
             <button
-              onClick={handleReset}
-              className="flex items-center gap-2 text-sm text-muted-foreground hover:text-foreground transition-colors"
+              onClick={() => scrollTo("tool")}
+              className="hidden md:inline-flex px-4 py-2 rounded-lg border border-border text-sm font-medium text-foreground hover:bg-card transition-colors"
             >
-              <RotateCcw className="w-4 h-4" />
-              New Image
+              Get Started
             </button>
-          )}
+            <button className="md:hidden text-foreground" onClick={() => setMobileMenuOpen(!mobileMenuOpen)}>
+              {mobileMenuOpen ? <X className="w-5 h-5" /> : <Menu className="w-5 h-5" />}
+            </button>
+          </div>
         </div>
+
+        {/* Mobile menu */}
+        {mobileMenuOpen && (
+          <div className="md:hidden border-t border-border bg-background/95 backdrop-blur-xl">
+            <div className="container max-w-6xl mx-auto px-4 py-4 flex flex-col gap-3">
+              {NAV_LINKS.map((link) => (
+                <button
+                  key={link}
+                  onClick={() => scrollTo(link.toLowerCase().replace(/\s+/g, "-"))}
+                  className="text-sm text-muted-foreground hover:text-foreground transition-colors text-left py-2"
+                >
+                  {link}
+                </button>
+              ))}
+              <button
+                onClick={() => scrollTo("tool")}
+                className="px-4 py-2 rounded-lg border border-border text-sm font-medium text-foreground hover:bg-card transition-colors mt-2"
+              >
+                Get Started
+              </button>
+            </div>
+          </div>
+        )}
       </header>
 
-      <main className="container max-w-6xl mx-auto px-4 py-8">
-        {/* Hero / Upload State */}
-        {state === "idle" && (
-          <div className="space-y-12 animate-slide-up">
-            <div className="text-center space-y-4 max-w-2xl mx-auto pt-8">
-              <h1 className="text-4xl sm:text-5xl font-bold font-display tracking-tight text-foreground">
-                Image → <span className="text-gradient">Tailwind Palette</span>
-              </h1>
-              <p className="text-lg text-muted-foreground">
-                Upload any image. Get a complete, production-ready Tailwind CSS color system in seconds.
-              </p>
-            </div>
+      {/* ───── HERO ───── */}
+      <section className="relative pt-32 pb-20 sm:pt-40 sm:pb-28">
+        {/* Glow background */}
+        <div className="absolute inset-0 overflow-hidden pointer-events-none">
+          <div className="absolute bottom-0 left-1/2 -translate-x-1/2 w-[800px] h-[500px] rounded-full bg-highlight/15 blur-[120px]" />
+          <div className="absolute bottom-0 left-1/3 w-[400px] h-[300px] rounded-full bg-accent/10 blur-[100px]" />
+        </div>
 
-            <div className="max-w-2xl mx-auto">
+        <div className="container max-w-4xl mx-auto px-4 text-center relative z-10 space-y-8">
+          <div className="inline-flex items-center gap-2 px-3 py-1.5 rounded-full border border-border bg-card/50 text-xs text-muted-foreground font-mono">
+            <span className="w-1.5 h-1.5 rounded-full bg-accent animate-pulse" />
+            100% client-side · No uploads to server
+          </div>
+
+          <h1 className="text-4xl sm:text-6xl lg:text-7xl font-bold font-display tracking-tight text-foreground leading-[1.1]">
+            The smart way to extract
+            <br />
+            <span className="text-gradient">color palettes</span>
+          </h1>
+
+          <p className="text-base sm:text-lg text-muted-foreground max-w-xl mx-auto leading-relaxed">
+            Upload any image. Get a complete, production-ready Tailwind CSS color
+            system with accessibility checks — all processed in your browser.
+          </p>
+
+          <div className="flex flex-col sm:flex-row items-center justify-center gap-4 pt-2">
+            <button
+              onClick={() => scrollTo("tool")}
+              className="px-6 py-3.5 rounded-xl gradient-accent text-accent-foreground font-semibold text-sm
+                hover:opacity-90 transition-opacity shadow-glow flex items-center gap-2"
+            >
+              Get started for free
+              <ArrowRight className="w-4 h-4" />
+            </button>
+            <button
+              onClick={() => scrollTo("how-it-works")}
+              className="px-6 py-3.5 rounded-xl border border-border text-foreground font-medium text-sm
+                hover:bg-card transition-colors flex items-center gap-2"
+            >
+              How it works
+              <ChevronDown className="w-4 h-4" />
+            </button>
+          </div>
+        </div>
+
+        {/* Grid overlay (decorative) */}
+        <div className="absolute inset-0 pointer-events-none opacity-[0.03]"
+          style={{
+            backgroundImage: `linear-gradient(hsl(var(--foreground)) 1px, transparent 1px), linear-gradient(90deg, hsl(var(--foreground)) 1px, transparent 1px)`,
+            backgroundSize: "60px 60px",
+          }}
+        />
+      </section>
+
+      {/* ───── ABOUT / FEATURES ───── */}
+      <section id="features" className="py-20 sm:py-28 relative">
+        <div className="container max-w-6xl mx-auto px-4 space-y-16">
+          <div className="text-center space-y-4 max-w-2xl mx-auto">
+            <p className="text-xs font-mono text-accent tracking-widest uppercase">Features</p>
+            <h2 className="text-3xl sm:text-4xl font-bold font-display text-foreground">
+              Everything you need to build a palette
+            </h2>
+            <p className="text-muted-foreground text-sm">
+              From smart extraction to production-ready code output — one tool, zero friction.
+            </p>
+          </div>
+
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-5">
+            {FEATURES.map((f, i) => (
+              <div
+                key={i}
+                className="group p-6 rounded-2xl bg-card border border-border hover:border-accent/30 transition-all duration-300 space-y-4"
+              >
+                <div className="w-10 h-10 rounded-xl bg-muted flex items-center justify-center group-hover:gradient-accent transition-all duration-300">
+                  <f.icon className="w-5 h-5 text-accent group-hover:text-accent-foreground transition-colors duration-300" />
+                </div>
+                <h3 className="text-base font-semibold text-foreground font-display">{f.title}</h3>
+                <p className="text-sm text-muted-foreground leading-relaxed">{f.desc}</p>
+              </div>
+            ))}
+          </div>
+        </div>
+      </section>
+
+      {/* ───── HOW IT WORKS ───── */}
+      <section id="how-it-works" className="py-20 sm:py-28 relative">
+        <div className="absolute inset-0 gradient-surface opacity-50 pointer-events-none" />
+        <div className="container max-w-5xl mx-auto px-4 space-y-16 relative z-10">
+          <div className="text-center space-y-4 max-w-2xl mx-auto">
+            <p className="text-xs font-mono text-accent tracking-widest uppercase">How It Works</p>
+            <h2 className="text-3xl sm:text-4xl font-bold font-display text-foreground">
+              Four steps to your palette
+            </h2>
+          </div>
+
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
+            {STEPS.map((s, i) => (
+              <div key={i} className="relative p-6 rounded-2xl bg-card border border-border space-y-4">
+                <span className="text-3xl font-bold font-display text-accent/20">{s.num}</span>
+                <div className="w-10 h-10 rounded-xl bg-muted flex items-center justify-center">
+                  <s.icon className="w-5 h-5 text-accent" />
+                </div>
+                <h3 className="text-base font-semibold text-foreground font-display">{s.title}</h3>
+                <p className="text-sm text-muted-foreground leading-relaxed">{s.desc}</p>
+                {i < STEPS.length - 1 && (
+                  <div className="hidden lg:block absolute top-1/2 -right-3 w-6 text-border">
+                    <ArrowRight className="w-4 h-4 text-muted-foreground/40" />
+                  </div>
+                )}
+              </div>
+            ))}
+          </div>
+        </div>
+      </section>
+
+      {/* ───── TOOL / FUNCTIONALITY ───── */}
+      <section id="tool" className="py-20 sm:py-28">
+        <div className="container max-w-6xl mx-auto px-4 space-y-10">
+          <div className="text-center space-y-4 max-w-2xl mx-auto">
+            <p className="text-xs font-mono text-accent tracking-widest uppercase">Try It Now</p>
+            <h2 className="text-3xl sm:text-4xl font-bold font-display text-foreground">
+              Extract your palette
+            </h2>
+          </div>
+
+          {state === "idle" && (
+            <div className="max-w-2xl mx-auto space-y-6 animate-slide-up">
               <ImageUploadZone
                 onImageSelect={setSelectedImage}
                 selectedImage={selectedImage}
                 onClear={() => setSelectedImage(null)}
               />
-
               {selectedImage && (
                 <button
                   onClick={handleExtract}
-                  className="mt-6 w-full flex items-center justify-center gap-2 px-6 py-3.5 rounded-xl
+                  className="w-full flex items-center justify-center gap-2 px-6 py-3.5 rounded-xl
                     gradient-accent text-accent-foreground font-semibold text-base
                     hover:opacity-90 transition-opacity shadow-glow"
                 >
@@ -108,65 +343,119 @@ const Index = () => {
                 </button>
               )}
             </div>
+          )}
 
-            {/* How it works */}
-            <div className="grid grid-cols-1 sm:grid-cols-3 gap-6 max-w-3xl mx-auto pt-4">
-              {[
-                { icon: Zap, title: "Upload", desc: "Drop any image — brand photo, UI screenshot, or poster" },
-                { icon: Sparkles, title: "Extract", desc: "Smart color quantization identifies dominant colors" },
-                { icon: Code2, title: "Get Config", desc: "Copy Tailwind config, CSS vars, or JSX snippets" },
-              ].map((step, i) => (
-                <div key={i} className="text-center p-6 rounded-xl bg-card border border-border">
-                  <div className="inline-flex p-3 rounded-xl bg-muted mb-3">
-                    <step.icon className="w-5 h-5 text-accent" />
+          {state === "processing" && (
+            <div className="flex flex-col items-center justify-center py-24 space-y-6 animate-slide-up">
+              <div className="p-4 rounded-2xl gradient-accent animate-pulse-glow">
+                <Palette className="w-8 h-8 text-accent-foreground" />
+              </div>
+              <div className="text-center space-y-2">
+                <h3 className="text-xl font-semibold text-foreground">Extracting colors...</h3>
+                <p className="text-sm text-muted-foreground">
+                  {progress < 30 ? "Reading image data" : progress < 70 ? "Quantizing colors" : "Assigning roles"}
+                </p>
+              </div>
+              <div className="w-64 h-1.5 bg-muted rounded-full overflow-hidden">
+                <div
+                  className="h-full gradient-accent rounded-full transition-all duration-500 ease-out"
+                  style={{ width: `${progress}%` }}
+                />
+              </div>
+            </div>
+          )}
+
+          {state === "result" && result && (
+            <div className="space-y-8 animate-slide-up">
+              <SwatchGrid colors={result.palette} />
+              <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
+                <MoodBadge mood={result.mood} />
+                <AccessibilityWarnings warnings={result.accessibility} />
+              </div>
+              <PaletteOutputTabs result={result} />
+              <div className="text-center">
+                <button
+                  onClick={handleReset}
+                  className="inline-flex items-center gap-2 px-5 py-2.5 rounded-xl border border-border text-sm text-muted-foreground hover:text-foreground hover:bg-card transition-colors"
+                >
+                  <RotateCcw className="w-4 h-4" />
+                  Try another image
+                </button>
+              </div>
+            </div>
+          )}
+        </div>
+      </section>
+
+      {/* ───── FAQ ───── */}
+      <section id="faq" className="py-20 sm:py-28 relative">
+        <div className="absolute inset-0 gradient-surface opacity-50 pointer-events-none" />
+        <div className="container max-w-3xl mx-auto px-4 space-y-12 relative z-10">
+          <div className="text-center space-y-4">
+            <p className="text-xs font-mono text-accent tracking-widest uppercase">FAQ</p>
+            <h2 className="text-3xl sm:text-4xl font-bold font-display text-foreground">
+              Frequently asked questions
+            </h2>
+          </div>
+
+          <div className="space-y-3">
+            {FAQS.map((faq, i) => (
+              <div
+                key={i}
+                className="rounded-xl border border-border bg-card overflow-hidden transition-colors"
+              >
+                <button
+                  onClick={() => setOpenFaq(openFaq === i ? null : i)}
+                  className="w-full flex items-center justify-between px-6 py-4 text-left"
+                >
+                  <span className="text-sm font-medium text-foreground pr-4">{faq.q}</span>
+                  <div className="shrink-0 w-6 h-6 rounded-full bg-muted flex items-center justify-center">
+                    {openFaq === i ? (
+                      <Minus className="w-3.5 h-3.5 text-accent" />
+                    ) : (
+                      <Plus className="w-3.5 h-3.5 text-muted-foreground" />
+                    )}
                   </div>
-                  <h3 className="font-semibold text-foreground text-sm">{step.title}</h3>
-                  <p className="text-xs text-muted-foreground mt-1">{step.desc}</p>
-                </div>
+                </button>
+                {openFaq === i && (
+                  <div className="px-6 pb-5">
+                    <p className="text-sm text-muted-foreground leading-relaxed">{faq.a}</p>
+                  </div>
+                )}
+              </div>
+            ))}
+          </div>
+        </div>
+      </section>
+
+      {/* ───── FOOTER ───── */}
+      <footer className="border-t border-border py-12">
+        <div className="container max-w-6xl mx-auto px-4">
+          <div className="flex flex-col sm:flex-row items-center justify-between gap-6">
+            <div className="flex items-center gap-2.5">
+              <div className="p-1.5 rounded-lg gradient-accent">
+                <Palette className="w-4 h-4 text-accent-foreground" />
+              </div>
+              <span className="text-sm font-bold font-display text-foreground">Palette AI</span>
+            </div>
+
+            <div className="flex items-center gap-6">
+              {NAV_LINKS.map((link) => (
+                <button
+                  key={link}
+                  onClick={() => scrollTo(link.toLowerCase().replace(/\s+/g, "-"))}
+                  className="text-xs text-muted-foreground hover:text-foreground transition-colors"
+                >
+                  {link}
+                </button>
               ))}
             </div>
-          </div>
-        )}
 
-        {/* Processing State */}
-        {state === "processing" && (
-          <div className="flex flex-col items-center justify-center py-32 space-y-6 animate-slide-up">
-            <div className="p-4 rounded-2xl gradient-accent animate-pulse-glow">
-              <Palette className="w-8 h-8 text-accent-foreground" />
-            </div>
-            <div className="text-center space-y-2">
-              <h2 className="text-xl font-semibold text-foreground">Extracting colors...</h2>
-              <p className="text-sm text-muted-foreground">
-                {progress < 30 ? "Reading image data" : progress < 70 ? "Quantizing colors" : "Assigning roles"}
-              </p>
-            </div>
-            <div className="w-64 h-1.5 bg-muted rounded-full overflow-hidden">
-              <div
-                className="h-full gradient-accent rounded-full transition-all duration-500 ease-out"
-                style={{ width: `${progress}%` }}
-              />
-            </div>
+            <p className="text-xs text-muted-foreground">
+              © {new Date().getFullYear()} Palette AI. All rights reserved.
+            </p>
           </div>
-        )}
-
-        {/* Result State */}
-        {state === "result" && result && (
-          <div className="space-y-8 animate-slide-up">
-            <SwatchGrid colors={result.palette} />
-            <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
-              <MoodBadge mood={result.mood} />
-              <AccessibilityWarnings warnings={result.accessibility} />
-            </div>
-            <PaletteOutputTabs result={result} />
-          </div>
-        )}
-      </main>
-
-      {/* Footer */}
-      <footer className="border-t border-border mt-16 py-6">
-        <p className="text-center text-xs text-muted-foreground">
-          Palette AI — Image to Tailwind CSS palette generator
-        </p>
+        </div>
       </footer>
     </div>
   );
