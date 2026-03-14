@@ -1,4 +1,5 @@
 import { useState } from "react";
+import { motion } from "framer-motion";
 import {
   Palette, Sparkles, Code2, Zap, ArrowRight, RotateCcw,
   Upload, Eye, Download, ChevronDown, Image, Layers, Pipette,
@@ -9,12 +10,15 @@ import SwatchGrid from "@/components/SwatchGrid";
 import MoodBadge from "@/components/MoodBadge";
 import AccessibilityWarnings from "@/components/AccessibilityWarnings";
 import PaletteOutputTabs from "@/components/PaletteOutputTabs";
+import AnimatedSection from "@/components/AnimatedSection";
+import SampleImages from "@/components/SampleImages";
+import Testimonials from "@/components/Testimonials";
 import { extractColorsFromImage, type PaletteResult } from "@/lib/colorExtractor";
 import { useToast } from "@/hooks/use-toast";
 
 type AppState = "idle" | "processing" | "result";
 
-const NAV_LINKS = ["Features", "How It Works", "FAQ"];
+const NAV_LINKS = ["Features", "How It Works", "Testimonials", "FAQ"];
 
 const FEATURES = [
   {
@@ -129,7 +133,12 @@ const Index = () => {
   return (
     <div className="min-h-screen bg-background overflow-x-hidden">
       {/* ───── NAVBAR ───── */}
-      <header className="fixed top-0 w-full z-50 border-b border-border/50 bg-background/80 backdrop-blur-xl">
+      <motion.header
+        initial={{ y: -20, opacity: 0 }}
+        animate={{ y: 0, opacity: 1 }}
+        transition={{ duration: 0.5 }}
+        className="fixed top-0 w-full z-50 border-b border-border/50 bg-background/80 backdrop-blur-xl"
+      >
         <div className="container max-w-6xl mx-auto px-4 h-16 flex items-center justify-between">
           <div className="flex items-center gap-2.5">
             <div className="p-1.5 rounded-lg gradient-accent">
@@ -174,7 +183,6 @@ const Index = () => {
           </div>
         </div>
 
-        {/* Mobile menu */}
         {mobileMenuOpen && (
           <div className="md:hidden border-t border-border bg-background/95 backdrop-blur-xl">
             <div className="container max-w-6xl mx-auto px-4 py-4 flex flex-col gap-3">
@@ -196,34 +204,53 @@ const Index = () => {
             </div>
           </div>
         )}
-      </header>
+      </motion.header>
 
       {/* ───── HERO ───── */}
       <section className="relative pt-32 pb-20 sm:pt-40 sm:pb-28">
-        {/* Glow background */}
         <div className="absolute inset-0 overflow-hidden pointer-events-none">
           <div className="absolute bottom-0 left-1/2 -translate-x-1/2 w-[800px] h-[500px] rounded-full bg-highlight/15 blur-[120px]" />
           <div className="absolute bottom-0 left-1/3 w-[400px] h-[300px] rounded-full bg-accent/10 blur-[100px]" />
         </div>
 
         <div className="container max-w-4xl mx-auto px-4 text-center relative z-10 space-y-8">
-          <div className="inline-flex items-center gap-2 px-3 py-1.5 rounded-full border border-border bg-card/50 text-xs text-muted-foreground font-mono">
+          <motion.div
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.5, delay: 0.2 }}
+            className="inline-flex items-center gap-2 px-3 py-1.5 rounded-full border border-border bg-card/50 text-xs text-muted-foreground font-mono"
+          >
             <span className="w-1.5 h-1.5 rounded-full bg-accent animate-pulse" />
             100% client-side · No uploads to server
-          </div>
+          </motion.div>
 
-          <h1 className="text-4xl sm:text-6xl lg:text-7xl font-bold font-display tracking-tight text-foreground leading-[1.1]">
+          <motion.h1
+            initial={{ opacity: 0, y: 30 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.6, delay: 0.3 }}
+            className="text-4xl sm:text-6xl lg:text-7xl font-bold font-display tracking-tight text-foreground leading-[1.1]"
+          >
             The smart way to extract
             <br />
             <span className="text-gradient">color palettes</span>
-          </h1>
+          </motion.h1>
 
-          <p className="text-base sm:text-lg text-muted-foreground max-w-xl mx-auto leading-relaxed">
+          <motion.p
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.5, delay: 0.45 }}
+            className="text-base sm:text-lg text-muted-foreground max-w-xl mx-auto leading-relaxed"
+          >
             Upload any image. Get a complete, production-ready Tailwind CSS color
             system with accessibility checks — all processed in your browser.
-          </p>
+          </motion.p>
 
-          <div className="flex flex-col sm:flex-row items-center justify-center gap-4 pt-2">
+          <motion.div
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.5, delay: 0.6 }}
+            className="flex flex-col sm:flex-row items-center justify-center gap-4 pt-2"
+          >
             <button
               onClick={() => scrollTo("tool")}
               className="px-6 py-3.5 rounded-xl gradient-accent text-accent-foreground font-semibold text-sm
@@ -240,10 +267,9 @@ const Index = () => {
               How it works
               <ChevronDown className="w-4 h-4" />
             </button>
-          </div>
+          </motion.div>
         </div>
 
-        {/* Grid overlay (decorative) */}
         <div className="absolute inset-0 pointer-events-none opacity-[0.03]"
           style={{
             backgroundImage: `linear-gradient(hsl(var(--foreground)) 1px, transparent 1px), linear-gradient(90deg, hsl(var(--foreground)) 1px, transparent 1px)`,
@@ -252,31 +278,35 @@ const Index = () => {
         />
       </section>
 
-      {/* ───── ABOUT / FEATURES ───── */}
+      {/* ───── FEATURES ───── */}
       <section id="features" className="py-20 sm:py-28 relative">
         <div className="container max-w-6xl mx-auto px-4 space-y-16">
-          <div className="text-center space-y-4 max-w-2xl mx-auto">
-            <p className="text-xs font-mono text-accent tracking-widest uppercase">Features</p>
-            <h2 className="text-3xl sm:text-4xl font-bold font-display text-foreground">
-              Everything you need to build a palette
-            </h2>
-            <p className="text-muted-foreground text-sm">
-              From smart extraction to production-ready code output — one tool, zero friction.
-            </p>
-          </div>
+          <AnimatedSection>
+            <div className="text-center space-y-4 max-w-2xl mx-auto">
+              <p className="text-xs font-mono text-accent tracking-widest uppercase">Features</p>
+              <h2 className="text-3xl sm:text-4xl font-bold font-display text-foreground">
+                Everything you need to build a palette
+              </h2>
+              <p className="text-muted-foreground text-sm">
+                From smart extraction to production-ready code output — one tool, zero friction.
+              </p>
+            </div>
+          </AnimatedSection>
 
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-5">
             {FEATURES.map((f, i) => (
-              <div
-                key={i}
-                className="group p-6 rounded-2xl bg-card border border-border hover:border-accent/30 transition-all duration-300 space-y-4"
-              >
-                <div className="w-10 h-10 rounded-xl bg-muted flex items-center justify-center group-hover:gradient-accent transition-all duration-300">
-                  <f.icon className="w-5 h-5 text-accent group-hover:text-accent-foreground transition-colors duration-300" />
-                </div>
-                <h3 className="text-base font-semibold text-foreground font-display">{f.title}</h3>
-                <p className="text-sm text-muted-foreground leading-relaxed">{f.desc}</p>
-              </div>
+              <AnimatedSection key={i} delay={i * 0.08}>
+                <motion.div
+                  whileHover={{ y: -4 }}
+                  className="group p-6 rounded-2xl bg-card border border-border hover:border-accent/30 transition-all duration-300 space-y-4 h-full"
+                >
+                  <div className="w-10 h-10 rounded-xl bg-muted flex items-center justify-center group-hover:gradient-accent transition-all duration-300">
+                    <f.icon className="w-5 h-5 text-accent group-hover:text-accent-foreground transition-colors duration-300" />
+                  </div>
+                  <h3 className="text-base font-semibold text-foreground font-display">{f.title}</h3>
+                  <p className="text-sm text-muted-foreground leading-relaxed">{f.desc}</p>
+                </motion.div>
+              </AnimatedSection>
             ))}
           </div>
         </div>
@@ -286,68 +316,86 @@ const Index = () => {
       <section id="how-it-works" className="py-20 sm:py-28 relative">
         <div className="absolute inset-0 gradient-surface opacity-50 pointer-events-none" />
         <div className="container max-w-5xl mx-auto px-4 space-y-16 relative z-10">
-          <div className="text-center space-y-4 max-w-2xl mx-auto">
-            <p className="text-xs font-mono text-accent tracking-widest uppercase">How It Works</p>
-            <h2 className="text-3xl sm:text-4xl font-bold font-display text-foreground">
-              Four steps to your palette
-            </h2>
-          </div>
+          <AnimatedSection>
+            <div className="text-center space-y-4 max-w-2xl mx-auto">
+              <p className="text-xs font-mono text-accent tracking-widest uppercase">How It Works</p>
+              <h2 className="text-3xl sm:text-4xl font-bold font-display text-foreground">
+                Four steps to your palette
+              </h2>
+            </div>
+          </AnimatedSection>
 
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
             {STEPS.map((s, i) => (
-              <div key={i} className="relative p-6 rounded-2xl bg-card border border-border space-y-4">
-                <span className="text-3xl font-bold font-display text-accent/20">{s.num}</span>
-                <div className="w-10 h-10 rounded-xl bg-muted flex items-center justify-center">
-                  <s.icon className="w-5 h-5 text-accent" />
-                </div>
-                <h3 className="text-base font-semibold text-foreground font-display">{s.title}</h3>
-                <p className="text-sm text-muted-foreground leading-relaxed">{s.desc}</p>
-                {i < STEPS.length - 1 && (
-                  <div className="hidden lg:block absolute top-1/2 -right-3 w-6 text-border">
-                    <ArrowRight className="w-4 h-4 text-muted-foreground/40" />
+              <AnimatedSection key={i} delay={i * 0.12}>
+                <motion.div
+                  whileHover={{ y: -4 }}
+                  className="relative p-6 rounded-2xl bg-card border border-border space-y-4 h-full"
+                >
+                  <span className="text-3xl font-bold font-display text-accent/20">{s.num}</span>
+                  <div className="w-10 h-10 rounded-xl bg-muted flex items-center justify-center">
+                    <s.icon className="w-5 h-5 text-accent" />
                   </div>
-                )}
-              </div>
+                  <h3 className="text-base font-semibold text-foreground font-display">{s.title}</h3>
+                  <p className="text-sm text-muted-foreground leading-relaxed">{s.desc}</p>
+                  {i < STEPS.length - 1 && (
+                    <div className="hidden lg:block absolute top-1/2 -right-3 w-6 text-border">
+                      <ArrowRight className="w-4 h-4 text-muted-foreground/40" />
+                    </div>
+                  )}
+                </motion.div>
+              </AnimatedSection>
             ))}
           </div>
         </div>
       </section>
 
-      {/* ───── TOOL / FUNCTIONALITY ───── */}
+      {/* ───── TOOL ───── */}
       <section id="tool" className="py-20 sm:py-28">
         <div className="container max-w-6xl mx-auto px-4 space-y-10">
-          <div className="text-center space-y-4 max-w-2xl mx-auto">
-            <p className="text-xs font-mono text-accent tracking-widest uppercase">Try It Now</p>
-            <h2 className="text-3xl sm:text-4xl font-bold font-display text-foreground">
-              Extract your palette
-            </h2>
-          </div>
+          <AnimatedSection>
+            <div className="text-center space-y-4 max-w-2xl mx-auto">
+              <p className="text-xs font-mono text-accent tracking-widest uppercase">Try It Now</p>
+              <h2 className="text-3xl sm:text-4xl font-bold font-display text-foreground">
+                Extract your palette
+              </h2>
+            </div>
+          </AnimatedSection>
 
           {state === "idle" && (
-            <div className="max-w-2xl mx-auto space-y-6 animate-slide-up">
-              <ImageUploadZone
-                onImageSelect={setSelectedImage}
-                selectedImage={selectedImage}
-                onClear={() => setSelectedImage(null)}
-              />
-              {selectedImage && (
-                <button
-                  onClick={handleExtract}
-                  className="w-full flex items-center justify-center gap-2 px-6 py-3.5 rounded-xl
-                    gradient-accent text-accent-foreground font-semibold text-base
-                    hover:opacity-90 transition-opacity shadow-glow"
-                >
-                  <Sparkles className="w-5 h-5" />
-                  Extract Palette
-                  <ArrowRight className="w-4 h-4" />
-                </button>
-              )}
-            </div>
+            <AnimatedSection>
+              <div className="max-w-2xl mx-auto space-y-6">
+                <ImageUploadZone
+                  onImageSelect={setSelectedImage}
+                  selectedImage={selectedImage}
+                  onClear={() => setSelectedImage(null)}
+                />
+                {!selectedImage && <SampleImages onSelect={setSelectedImage} />}
+                {selectedImage && (
+                  <motion.button
+                    initial={{ opacity: 0, y: 10 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    onClick={handleExtract}
+                    className="w-full flex items-center justify-center gap-2 px-6 py-3.5 rounded-xl
+                      gradient-accent text-accent-foreground font-semibold text-base
+                      hover:opacity-90 transition-opacity shadow-glow"
+                  >
+                    <Sparkles className="w-5 h-5" />
+                    Extract Palette
+                    <ArrowRight className="w-4 h-4" />
+                  </motion.button>
+                )}
+              </div>
+            </AnimatedSection>
           )}
 
           {state === "processing" && (
-            <div className="flex flex-col items-center justify-center py-24 space-y-6 animate-slide-up">
-              <div className="p-4 rounded-2xl gradient-accent animate-pulse-glow">
+            <motion.div
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              className="flex flex-col items-center justify-center py-24 space-y-6"
+            >
+              <div className="p-4 rounded-2xl gradient-accent animate-pulse">
                 <Palette className="w-8 h-8 text-accent-foreground" />
               </div>
               <div className="text-center space-y-2">
@@ -362,11 +410,16 @@ const Index = () => {
                   style={{ width: `${progress}%` }}
                 />
               </div>
-            </div>
+            </motion.div>
           )}
 
           {state === "result" && result && (
-            <div className="space-y-8 animate-slide-up">
+            <motion.div
+              initial={{ opacity: 0, y: 20 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ duration: 0.5 }}
+              className="space-y-8"
+            >
               <SwatchGrid colors={result.palette} />
               <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
                 <MoodBadge mood={result.mood} />
@@ -382,81 +435,94 @@ const Index = () => {
                   Try another image
                 </button>
               </div>
-            </div>
+            </motion.div>
           )}
         </div>
       </section>
+
+      {/* ───── TESTIMONIALS ───── */}
+      <div id="testimonials">
+        <Testimonials />
+      </div>
 
       {/* ───── FAQ ───── */}
       <section id="faq" className="py-20 sm:py-28 relative">
         <div className="absolute inset-0 gradient-surface opacity-50 pointer-events-none" />
         <div className="container max-w-3xl mx-auto px-4 space-y-12 relative z-10">
-          <div className="text-center space-y-4">
-            <p className="text-xs font-mono text-accent tracking-widest uppercase">FAQ</p>
-            <h2 className="text-3xl sm:text-4xl font-bold font-display text-foreground">
-              Frequently asked questions
-            </h2>
-          </div>
+          <AnimatedSection>
+            <div className="text-center space-y-4">
+              <p className="text-xs font-mono text-accent tracking-widest uppercase">FAQ</p>
+              <h2 className="text-3xl sm:text-4xl font-bold font-display text-foreground">
+                Frequently asked questions
+              </h2>
+            </div>
+          </AnimatedSection>
 
           <div className="space-y-3">
             {FAQS.map((faq, i) => (
-              <div
-                key={i}
-                className="rounded-xl border border-border bg-card overflow-hidden transition-colors"
-              >
-                <button
-                  onClick={() => setOpenFaq(openFaq === i ? null : i)}
-                  className="w-full flex items-center justify-between px-6 py-4 text-left"
-                >
-                  <span className="text-sm font-medium text-foreground pr-4">{faq.q}</span>
-                  <div className="shrink-0 w-6 h-6 rounded-full bg-muted flex items-center justify-center">
-                    {openFaq === i ? (
-                      <Minus className="w-3.5 h-3.5 text-accent" />
-                    ) : (
-                      <Plus className="w-3.5 h-3.5 text-muted-foreground" />
-                    )}
-                  </div>
-                </button>
-                {openFaq === i && (
-                  <div className="px-6 pb-5">
-                    <p className="text-sm text-muted-foreground leading-relaxed">{faq.a}</p>
-                  </div>
-                )}
-              </div>
+              <AnimatedSection key={i} delay={i * 0.06}>
+                <div className="rounded-xl border border-border bg-card overflow-hidden transition-colors">
+                  <button
+                    onClick={() => setOpenFaq(openFaq === i ? null : i)}
+                    className="w-full flex items-center justify-between px-6 py-4 text-left"
+                  >
+                    <span className="text-sm font-medium text-foreground pr-4">{faq.q}</span>
+                    <div className="shrink-0 w-6 h-6 rounded-full bg-muted flex items-center justify-center">
+                      {openFaq === i ? (
+                        <Minus className="w-3.5 h-3.5 text-accent" />
+                      ) : (
+                        <Plus className="w-3.5 h-3.5 text-muted-foreground" />
+                      )}
+                    </div>
+                  </button>
+                  <motion.div
+                    initial={false}
+                    animate={openFaq === i ? { height: "auto", opacity: 1 } : { height: 0, opacity: 0 }}
+                    transition={{ duration: 0.3, ease: "easeInOut" }}
+                    className="overflow-hidden"
+                  >
+                    <div className="px-6 pb-5">
+                      <p className="text-sm text-muted-foreground leading-relaxed">{faq.a}</p>
+                    </div>
+                  </motion.div>
+                </div>
+              </AnimatedSection>
             ))}
           </div>
         </div>
       </section>
 
       {/* ───── FOOTER ───── */}
-      <footer className="border-t border-border py-12">
-        <div className="container max-w-6xl mx-auto px-4">
-          <div className="flex flex-col sm:flex-row items-center justify-between gap-6">
-            <div className="flex items-center gap-2.5">
-              <div className="p-1.5 rounded-lg gradient-accent">
-                <Palette className="w-4 h-4 text-accent-foreground" />
+      <AnimatedSection>
+        <footer className="border-t border-border py-12">
+          <div className="container max-w-6xl mx-auto px-4">
+            <div className="flex flex-col sm:flex-row items-center justify-between gap-6">
+              <div className="flex items-center gap-2.5">
+                <div className="p-1.5 rounded-lg gradient-accent">
+                  <Palette className="w-4 h-4 text-accent-foreground" />
+                </div>
+                <span className="text-sm font-bold font-display text-foreground">Palette AI</span>
               </div>
-              <span className="text-sm font-bold font-display text-foreground">Palette AI</span>
-            </div>
 
-            <div className="flex items-center gap-6">
-              {NAV_LINKS.map((link) => (
-                <button
-                  key={link}
-                  onClick={() => scrollTo(link.toLowerCase().replace(/\s+/g, "-"))}
-                  className="text-xs text-muted-foreground hover:text-foreground transition-colors"
-                >
-                  {link}
-                </button>
-              ))}
-            </div>
+              <div className="flex items-center gap-6">
+                {NAV_LINKS.map((link) => (
+                  <button
+                    key={link}
+                    onClick={() => scrollTo(link.toLowerCase().replace(/\s+/g, "-"))}
+                    className="text-xs text-muted-foreground hover:text-foreground transition-colors"
+                  >
+                    {link}
+                  </button>
+                ))}
+              </div>
 
-            <p className="text-xs text-muted-foreground">
-              © {new Date().getFullYear()} Palette AI. All rights reserved.
-            </p>
+              <p className="text-xs text-muted-foreground">
+                © {new Date().getFullYear()} Palette AI. All rights reserved.
+              </p>
+            </div>
           </div>
-        </div>
-      </footer>
+        </footer>
+      </AnimatedSection>
     </div>
   );
 };
