@@ -1,73 +1,149 @@
-# Welcome to your Lovable project
+<div align="center">
 
-## Project info
+# API Hook Builder
 
-**URL**: https://lovable.dev/projects/REPLACE_WITH_PROJECT_ID
+**Convert any JSON API endpoint into production-ready React hooks and TypeScript types in seconds.**
 
-## How can I edit this code?
+[![License: MIT](https://img.shields.io/badge/License-MIT-blue.svg)](https://opensource.org/licenses/MIT)
+[![Build Status](https://img.shields.io/badge/build-passing-brightgreen.svg)](#)
+[![TypeScript](https://img.shields.io/badge/TypeScript-007ACC?logo=typescript&logoColor=white)](https://www.typescriptlang.org/)
+[![React](https://img.shields.io/badge/React-20232A?logo=react&logoColor=61DAFB)](https://reactjs.org/)
 
-There are several ways of editing your application.
+[Live Demo](#) • [Documentation](#) • [Report Bug](#) • [Request Feature](#)
 
-**Use Lovable**
+</div>
 
-Simply visit the [Lovable Project](https://lovable.dev/projects/REPLACE_WITH_PROJECT_ID) and start prompting.
+---
 
-Changes made via Lovable will be committed automatically to this repo.
+##  Demo
 
-**Use your preferred IDE**
+![App Screenshot](./public/demo-1.png)
+![App Screenshot](./public/demo-2.png)
 
-If you want to work locally using your own IDE, you can clone this repo and push changes. Pushed changes will also be reflected in Lovable.
 
-The only requirement is having Node.js & npm installed - [install with nvm](https://github.com/nvm-sh/nvm#installing-and-updating)
+> **Visual proof matters more than text.**
 
-Follow these steps:
+- **Live App:** [yourapp.com](https://yourapp.com)
+-  **Demo Video:** [Watch on YouTube](https://youtube.com/...)
 
-```sh
-# Step 1: Clone the repository using the project's Git URL.
-git clone <YOUR_GIT_URL>
+---
 
-# Step 2: Navigate to the project directory.
-cd <YOUR_PROJECT_NAME>
+##  The Problem
 
-# Step 3: Install the necessary dependencies.
-npm i
+Working with modern APIs often involves tedious, repetitive tasks that are prone to errors:
+-  **Writing TypeScript types** for every endpoint response.
+-  **Creating fetch wrappers** or service layers manually.
+-  **Writing TanStack/React Query hooks** for state management.
 
-# Step 4: Start the development server with auto-reloading and an instant preview.
-npm run dev
+This slows down development and introduces bugs when the API schema changes.
+
+---
+
+##  The Solution
+
+**API Hook Builder** bridges the gap between your API and your React application. Just paste a JSON endpoint or response, and it instantly generates:
+
+-  **Fully Typed TypeScript Interfaces**: No more `any` or manual interface definitions.
+-  **Production-Ready Fetch Client**: Robust, modular service layer.
+-  **TanStack React Query Hooks**: Pre-configured with best practices for caching and synchronization.
+
+---
+
+##  Features
+
+- **JSON → TypeScript**: Automatic generation of complex interfaces from JSON samples.
+- **Nested Structures**: Full support for deeply nested objects and arrays.
+- **Hook Generation**: Generates clean `useQuery` and `useMutation` hooks.
+- **Copy-Ready Code**: No extra setup required—just copy, paste, and ship.
+- **No CLI Required**: A purely browser-based tool for maximum accessibility.
+
+---
+
+##  Tech Stack
+
+### Frontend
+- **Framework**: [React](https://reactjs.org/)
+- **Language**: [TypeScript](https://www.typescriptlang.org/)
+- **Styling**: [Tailwind CSS](https://tailwindcss.com/)
+
+### Backend
+- **Runtime**: Node.js
+- **Framework**: Express
+
+### Other
+- **State Management**: [TanStack Query](https://tanstack.com/query/latest) (React Query)
+- **Icons**: [Lucide React](https://lucide.dev/)
+- **Animations**: [Framer Motion](https://www.framer.com/motion/)
+
+---
+
+##  Quick Start
+
+Get the project running locally in under 60 seconds:
+
+1. **Clone the repository**
+   ```bash
+   git clone https://github.com/biswajit-sarkar-007/api-hook-builder.git
+   ```
+
+2. **Install dependencies**
+   ```bash
+   npm install
+   ```
+
+3. **Run the development server**
+   ```bash
+   npm run dev
+   ```
+
+---
+
+##  Project Structure
+
+```text
+src/
+ ├─ components/     # Reusable UI components
+ ├─ hooks/          # Custom generator hooks
+ ├─ services/       # Core generation logic
+ ├─ utils/          # Utility functions
+ └─ pages/          # Application views & routing
 ```
 
-**Edit a file directly in GitHub**
+---
 
-- Navigate to the desired file(s).
-- Click the "Edit" button (pencil icon) at the top right of the file view.
-- Make your changes and commit the changes.
+##  How It Works
 
-**Use GitHub Codespaces**
+This is where the engineering credibility lives:
 
-- Navigate to the main page of your repository.
-- Click on the "Code" button (green button) near the top right.
-- Select the "Codespaces" tab.
-- Click on "New codespace" to launch a new Codespace environment.
-- Edit files directly within the Codespace and commit and push your changes once you're done.
+1. **Fetch JSON from endpoint**: Gracefully handles cross-origin requests or pasted blobs.
+2. **Parse object schema**: Recursively traverses the JSON to build a metadata map.
+3. **Generate TypeScript types**: Maps JSON types to valid TypeScript syntax.
+4. **Generate React Query hook**: Wraps the generated types and fetch calls into a standard TanStack pattern.
 
-## What technologies are used for this project?
+---
 
-This project is built with:
+##  Roadmap
 
-- Vite
-- TypeScript
-- React
-- shadcn-ui
-- Tailwind CSS
+- [x] JSON → TypeScript generation
+- [x] TanStack React Query hooks support
+- [ ] GraphQL schema introspection support
+- [ ] CLI version for CI/CD pipelines
+- [ ] VSCode extension for inline generation
 
-## How can I deploy this project?
+---
 
-Simply open [Lovable](https://lovable.dev/projects/REPLACE_WITH_PROJECT_ID) and click on Share -> Publish.
+## Contributing
 
-## Can I connect a custom domain to my Lovable project?
+Contributions make the open-source community an amazing place to learn, inspire, and create. Any contributions you make are **greatly appreciated**.
 
-Yes, you can!
+1. Fork the Project
+2. Create your Feature Branch (`git checkout -b feature/AmazingFeature`)
+3. Commit your Changes (`git commit -m 'Add some AmazingFeature'`)
+4. Push to the Branch (`git push origin feature/AmazingFeature`)
+5. Open a Pull Request
 
-To connect a domain, navigate to Project > Settings > Domains and click Connect Domain.
+---
 
-Read more here: [Setting up a custom domain](https://docs.lovable.dev/features/custom-domain#custom-domain)
+##  License
+
+Distributed under the MIT License. See `LICENSE` for more information.
