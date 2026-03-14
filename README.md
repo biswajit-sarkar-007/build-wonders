@@ -1,8 +1,8 @@
 <div align="center">
 
-# API Hook Builder
+# Palette AI
 
-**Convert any JSON API endpoint into production-ready React hooks and TypeScript types in seconds.**
+**Extract production-ready color systems from any image with intelligence.**
 
 [![License: MIT](https://img.shields.io/badge/License-MIT-blue.svg)](https://opensource.org/licenses/MIT)
 [![Build Status](https://img.shields.io/badge/build-passing-brightgreen.svg)](#)
@@ -23,39 +23,39 @@
 
 > **Visual proof matters more than text.**
 
-- **Live App:** [yourapp.com](https://yourapp.com)
+- **Live App:** [palette-ai.lovable.app](https://lovable.dev/projects/REPLACE_WITH_PROJECT_ID)
 -  **Demo Video:** [Watch on YouTube](https://youtube.com/...)
 
 ---
 
 ##  The Problem
 
-Working with modern APIs often involves tedious, repetitive tasks that are prone to errors:
--  **Writing TypeScript types** for every endpoint response.
--  **Creating fetch wrappers** or service layers manually.
--  **Writing TanStack/React Query hooks** for state management.
-
-This slows down development and introduces bugs when the API schema changes.
+Designing a cohesive UI color system is difficult and time-consuming:
+-  **Inconsistent Extraction**: Manually picking colors from brand assets often misses the true dominant tones.
+-  **Accessibility Gaps**: Most palettes don't account for WCAG contrast standards until it's too late.
+-  **Role Ambiguity**: Deciding which color should be "primary," "accent," or "background" involves repetitive guesswork.
 
 ---
 
 ##  The Solution
 
-**API Hook Builder** bridges the gap between your API and your React application. Just paste a JSON endpoint or response, and it instantly generates:
+**Palette AI** automates the bridge between visual inspiration and production code. By analyzing any image, it instantly generates:
 
--  **Fully Typed TypeScript Interfaces**: No more `any` or manual interface definitions.
--  **Production-Ready Fetch Client**: Robust, modular service layer.
--  **TanStack React Query Hooks**: Pre-configured with best practices for caching and synchronization.
+-  **Quantized Swatches**: Dominant colors extracted using the Median Cut algorithm.
+-  **Functional Role Assignment**: Intelligently mapped roles (Primary, Secondary, Accent, etc.).
+-  **Accessibility Dashboard**: Real-time contrast ratio validation and WCAG compliance flags.
+-  **Theme Generators**: Ready-to-copy Tailwind CSS configs and CSS variables.
 
 ---
 
 ##  Features
 
-- **JSON → TypeScript**: Automatic generation of complex interfaces from JSON samples.
-- **Nested Structures**: Full support for deeply nested objects and arrays.
-- **Hook Generation**: Generates clean `useQuery` and `useMutation` hooks.
-- **Copy-Ready Code**: No extra setup required—just copy, paste, and ship.
-- **No CLI Required**: A purely browser-based tool for maximum accessibility.
+- **Smart Color Extraction**: Advanced Median Cut quantization identifying dominant tones.
+- **Intelligent Role Mapping**: Automatic assignment of UI roles based on luminance & saturation.
+- **Accessibility Checks**: WCAG 2.1 contrast analysis for body text and interactive elements.
+- **Mood Profile**: Automatic "mood" detection based on HSL distribution.
+- **Production-Ready Hooks**: Export as Tailwind config, CSS variables, or JSX/HTML snippets.
+- **100% Client-Side**: Your images are processed entirely in the browser for maximum privacy.
 
 ---
 
@@ -65,13 +65,10 @@ This slows down development and introduces bugs when the API schema changes.
 - **Framework**: [React](https://reactjs.org/)
 - **Language**: [TypeScript](https://www.typescriptlang.org/)
 - **Styling**: [Tailwind CSS](https://tailwindcss.com/)
+- **Components**: [shadcn/ui](https://ui.shadcn.com/)
 
-### Backend
-- **Runtime**: Node.js
-- **Framework**: Express
-
-### Other
-- **State Management**: [TanStack Query](https://tanstack.com/query/latest) (React Query)
+### Core
+- **Engine**: [Canvas API](https://developer.mozilla.org/en-US/docs/Web/API/Canvas_API) for image processing
 - **Icons**: [Lucide React](https://lucide.dev/)
 - **Animations**: [Framer Motion](https://www.framer.com/motion/)
 
@@ -83,7 +80,7 @@ Get the project running locally in under 60 seconds:
 
 1. **Clone the repository**
    ```bash
-   git clone https://github.com/biswajit-sarkar-007/api-hook-builder.git
+   git clone https://github.com/biswajit-sarkar-007/palette-ai.git
    ```
 
 2. **Install dependencies**
@@ -102,33 +99,49 @@ Get the project running locally in under 60 seconds:
 
 ```text
 src/
- ├─ components/     # Reusable UI components
- ├─ hooks/          # Custom generator hooks
- ├─ services/       # Core generation logic
- ├─ utils/          # Utility functions
- └─ pages/          # Application views & routing
+ ├─ components/
+ │   ├─ ui/                  # shadcn/ui shared components
+ │   ├─ ImageUploadZone.tsx  # Canvas-based image processing zone
+ │   ├─ SwatchGrid.tsx      # Palette visualization grid
+ │   ├─ MoodBadge.tsx       # AI-driven mood interpretation
+ │   └─ ...                 # Accessibility checks and Export tabs
+ ├─ lib/
+ │   ├─ colorExtractor.ts    # The Core Engine (Quantization & Logic)
+ │   └─ utils.ts            # General purpose utility functions
+ ├─ hooks/
+ │   └─ use-toast.ts        # Global notification system
+ ├─ pages/
+ │   ├─ Index.tsx           # Primary application view
+ │   └─ NotFound.tsx        # 404 Route handling
+ ├─ App.tsx                 # Core routing logic
+ └─ main.tsx                # Entry point & global styles
 ```
 
 ---
 
 ##  How It Works
 
-This is where the engineering credibility lives:
+The engine behind this generator leverages advanced color theory and image processing:
 
-1. **Fetch JSON from endpoint**: Gracefully handles cross-origin requests or pasted blobs.
-2. **Parse object schema**: Recursively traverses the JSON to build a metadata map.
-3. **Generate TypeScript types**: Maps JSON types to valid TypeScript syntax.
-4. **Generate React Query hook**: Wraps the generated types and fetch calls into a standard TanStack pattern.
+1. **Smart Quantization**: Uses a **Median Cut Algorithm** to recursively subdivide the color space of your image into buckets, ensuring the most dominant and representative colors are extracted.
+2. **Intelligent Role Mapping**: Analyzes the luminance and saturation of extracted colors to automatically assign them functional UI roles:
+    - **Primary**: The most vibrant, characteristic color.
+    - **Accent**: A high-saturation color for CTAs.
+    - **Background/Text**: High-contrast pair for readability.
+3. **Accessibility Validation**: Real-time calculation of **WCAG Contrast Ratios** between all assigned pairs, flagging combinations that don't meet AA/AAA industry standards.
+4. **Mood & Psychology Analysis**: Maps HSL values to a psychological "mood profile," helping you understand the emotional impact of your chosen palette.
+5. **Production Export**: Dynamically compiles the palette into production-ready **Tailwind CSS config**, **CSS Variables**, and interactive **JSX/HTML snippets**.
 
 ---
 
 ##  Roadmap
 
-- [x] JSON → TypeScript generation
-- [x] TanStack React Query hooks support
-- [ ] GraphQL schema introspection support
-- [ ] CLI version for CI/CD pipelines
-- [ ] VSCode extension for inline generation
+- [x] Median Cut quantization
+- [x] WCAG Contrast analysis
+- [x] Tailwind CSS & CSS Var exports
+- [ ] Multiple quantization count selection (4, 8, 12 colors)
+- [ ] Export as Figma (.fig) or ASE palette files
+- [ ] Batch image processing
 
 ---
 

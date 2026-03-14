@@ -131,7 +131,7 @@ const Index = () => {
   };
 
   return (
-    <div className="min-h-screen bg-background overflow-x-hidden">
+    <div className="min-h-screen bg-background relative isolate">
       {/* ───── NAVBAR ───── */}
       <motion.header
         initial={{ y: -20, opacity: 0 }}
@@ -207,8 +207,8 @@ const Index = () => {
       </motion.header>
 
       {/* ───── HERO ───── */}
-      <section className="relative pt-32 pb-20 sm:pt-40 sm:pb-28">
-        <div className="absolute inset-0 overflow-hidden pointer-events-none">
+      <section className="relative pt-32 pb-20 sm:pt-40 sm:pb-28 overflow-hidden touch-pan-y">
+        <div className="absolute inset-0 pointer-events-none select-none">
           <div className="absolute bottom-0 left-1/2 -translate-x-1/2 w-[800px] h-[500px] rounded-full bg-highlight/15 blur-[120px]" />
           <div className="absolute bottom-0 left-1/3 w-[400px] h-[300px] rounded-full bg-accent/10 blur-[100px]" />
         </div>
