@@ -147,6 +147,67 @@ const COLOR_NAMES: Record<string, [number, number, number, number, number, numbe
   "Cool Gray": [200, 230, 5, 20, 40, 65],
 };
 
+function hslToRgb(h: number, s: number, l: number): [number, number, number] {
+  h /= 360; s /= 100; l /= 100;
+  let r, g, b;
+  if (s === 0) {
+    r = g = b = l;
+  } else {
+    const q = l < 0.5 ? l * (1 + s) : l + s - l * s;
+    const p = 2 * l - q;
+    const hue2rgb = (p: number, q: number, t: number) => {
+      if (t < 0) t += 1;
+      if (t > 1) t -= 1;
+      if (t < 1 / 6) return p + (q - p) * 6 * t;
+      if (t < 1 / 2) return q;
+      if (t < 2 / 3) return p + (q - p) * (2 / 3 - t) * 6;
+      return p;
+    };
+    r = hue2rgb(p, q, h + 1 / 3);
+    g = hue2rgb(p, q, h);
+    b = hue2rgb(p, q, h - 1 / 3);
+  }
+  return [
+    Math.min(255, Math.max(0, Math.round(r * 255))),
+    Math.min(255, Math.max(0, Math.round(g * 255))),
+    Math.min(255, Math.max(0, Math.round(b * 255)))
+  ];
+}
+
+function ensureContrast(fgHex: string, bgHex: string, minRatio: number): string {
+  const ratio = getContrastRatio(fgHex, bgHex);
+  if (ratio >= minRatio) return fgHex;
+
+  const fgRgb = hexToRgb(fgHex);
+  const bgRgb = hexToRgb(bgHex);
+  const fgHsl = rgbToHsl(...fgRgb);
+  const bgLum = getLuminance(...bgRgb);
+
+  const makeLighter = bgLum < 0.5;
+  
+  let low = makeLighter ? fgHsl[2] : 0;
+  let high = makeLighter ? 100 : fgHsl[2];
+  let bestL = fgHsl[2];
+  
+  for (let i = 0; i < 10; i++) {
+    const mid = (low + high) / 2;
+    const testRgb = hslToRgb(fgHsl[0], fgHsl[1], mid);
+    const testHex = rgbToHex(...testRgb);
+    const testRatio = getContrastRatio(testHex, bgHex);
+    
+    if (testRatio >= minRatio) {
+      if (makeLighter) high = mid;
+      else low = mid;
+      bestL = mid;
+    } else {
+      if (makeLighter) low = mid;
+      else high = mid;
+    }
+  }
+  
+  return rgbToHex(...hslToRgb(fgHsl[0], fgHsl[1], bestL));
+}
+
 function getColorName(hex: string): string {
   const rgb = hexToRgb(hex);
   const [h, s, l] = rgbToHsl(...rgb);
@@ -222,7 +283,6 @@ function quantizeColors(pixels: Uint8ClampedArray, count: number): [number, numb
 
 function assignRoles(colors: [number, number, number][]): ExtractedColor[] {
   if (colors.length < 6) {
-    // Pad with variations
     while (colors.length < 6) {
       const base = colors[colors.length % colors.length];
       colors.push([
@@ -233,7 +293,6 @@ function assignRoles(colors: [number, number, number][]): ExtractedColor[] {
     }
   }
 
-  // Sort by properties to assign roles intelligently
   const sorted = colors.map((c, i) => ({
     rgb: c,
     hex: rgbToHex(...c),
@@ -249,22 +308,58 @@ function assignRoles(colors: [number, number, number][]): ExtractedColor[] {
   const remaining = sorted.slice(1, -1);
   remaining.sort((a, b) => b.sat - a.sat);
 
-  const roles = [
-    { ...remaining[0], role: "primary" },
-    { ...(remaining[1] || remaining[0]), role: "secondary" },
-    { ...(remaining[2] || remaining[0]), role: "accent" },
-    { ...(remaining[3] || remaining[1] || remaining[0]), role: "highlight" },
-    { ...lightest, role: "background" },
-    { ...darkest, role: "text" },
+  // Determine if we should go for light or dark mode based on image dominance
+  // Default to light mode for cleaner SaaS looks unless image is very dark
+  const isDarkMode = lightest.lum < 0.3;
+  
+  let bgHex = lightest.hex;
+  if (isDarkMode) {
+    // For dark mode, ensure background is dark enough
+    const hsl = rgbToHsl(...lightest.rgb);
+    bgHex = rgbToHex(...hslToRgb(hsl[0], Math.min(hsl[1], 20), 8));
+  } else {
+    // For light mode, ensure background is light enough
+    const hsl = rgbToHsl(...lightest.rgb);
+    bgHex = rgbToHex(...hslToRgb(hsl[0], Math.min(hsl[1], 10), 98));
+  }
+
+  const textHex = ensureContrast(darkest.hex, bgHex, isDarkMode ? 7 : 8);
+  
+  const roleAssignments = [
+    { role: "primary", base: remaining[0], minContrast: 4.5 },
+    { role: "secondary", base: remaining[1] || remaining[0], minContrast: 4.5 },
+    { role: "accent", base: remaining[2] || remaining[0], minContrast: 4.5 },
+    { role: "highlight", base: remaining[3] || remaining[1] || remaining[1] || remaining[0], minContrast: 3.5 },
   ];
 
-  return roles.map(r => ({
-    hex: r.hex.toUpperCase(),
-    rgb: r.rgb,
-    role: r.role,
-    name: getColorName(r.hex),
-    tailwindNearest: findNearestTailwind(r.hex),
-  }));
+  const palette: ExtractedColor[] = roleAssignments.map(r => {
+    const finalHex = ensureContrast(r.base.hex, bgHex, r.minContrast);
+    return {
+      hex: finalHex.toUpperCase(),
+      rgb: hexToRgb(finalHex),
+      role: r.role,
+      name: getColorName(finalHex),
+      tailwindNearest: findNearestTailwind(finalHex),
+    };
+  });
+
+  palette.push({
+    hex: bgHex.toUpperCase(),
+    rgb: hexToRgb(bgHex),
+    role: "background",
+    name: getColorName(bgHex),
+    tailwindNearest: findNearestTailwind(bgHex),
+  });
+
+  palette.push({
+    hex: textHex.toUpperCase(),
+    rgb: hexToRgb(textHex),
+    role: "text",
+    name: getColorName(textHex),
+    tailwindNearest: findNearestTailwind(textHex),
+  });
+
+  return palette;
 }
 
 function getMood(colors: ExtractedColor[]): string {
@@ -284,23 +379,26 @@ function getMood(colors: ExtractedColor[]): string {
 
 function checkAccessibility(colors: ExtractedColor[]) {
   const warnings: { pair: [string, string]; contrastRatio: number; warning: string }[] = [];
-  const pairs: [string, string][] = [
-    ["text", "background"],
-    ["primary", "background"],
-    ["secondary", "background"],
-    ["accent", "background"],
-    ["highlight", "background"],
+  const bg = colors.find(c => c.role === "background");
+  if (!bg) return warnings;
+
+  const rolesToCheck: { role: string; threshold: number; label: string }[] = [
+    { role: "text", threshold: 4.5, label: "body text" },
+    { role: "primary", threshold: 4.5, label: "primary elements" },
+    { role: "secondary", threshold: 3, label: "UI components" },
+    { role: "accent", threshold: 3, label: "UI components" },
+    { role: "highlight", threshold: 3, label: "UI components" },
   ];
-  for (const [role1, role2] of pairs) {
-    const c1 = colors.find(c => c.role === role1);
-    const c2 = colors.find(c => c.role === role2);
-    if (c1 && c2) {
-      const ratio = getContrastRatio(c1.hex, c2.hex);
-      if (ratio < 4.5) {
+
+  for (const check of rolesToCheck) {
+    const c = colors.find(c => c.role === check.role);
+    if (c) {
+      const ratio = getContrastRatio(c.hex, bg.hex);
+      if (ratio < check.threshold) {
         warnings.push({
-          pair: [role1, role2],
+          pair: [check.role, "background"],
           contrastRatio: Math.round(ratio * 10) / 10,
-          warning: `Fails WCAG AA for body text (${ratio.toFixed(1)}:1, needs 4.5:1)`,
+          warning: `Fails WCAG AA (${ratio.toFixed(1)}:1, needs ${check.threshold}:1 for ${check.label})`,
         });
       }
     }
