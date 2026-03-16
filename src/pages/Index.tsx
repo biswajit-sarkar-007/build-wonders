@@ -7,18 +7,17 @@ import {
 } from "lucide-react";
 import ImageUploadZone from "@/components/ImageUploadZone";
 import SwatchGrid from "@/components/SwatchGrid";
-import MoodBadge from "@/components/MoodBadge";
 import AccessibilityWarnings from "@/components/AccessibilityWarnings";
 import PaletteOutputTabs from "@/components/PaletteOutputTabs";
 import AnimatedSection from "@/components/AnimatedSection";
 import SampleImages from "@/components/SampleImages";
-import Testimonials from "@/components/Testimonials";
 import { extractColorsFromImage, type PaletteResult } from "@/lib/colorExtractor";
 import { useToast } from "@/hooks/use-toast";
 
+
 type AppState = "idle" | "processing" | "result";
 
-const NAV_LINKS = ["Features", "How It Works", "Testimonials", "FAQ"];
+const NAV_LINKS = ["Features", "How It Works", "FAQ"];
 
 const FEATURES = [
   {
@@ -56,7 +55,8 @@ const FEATURES = [
 const STEPS = [
   { num: "01", icon: Upload, title: "Upload", desc: "Drop any image — brand photo, UI screenshot, or poster." },
   { num: "02", icon: Sparkles, title: "Extract", desc: "Smart quantization identifies dominant colors & assigns roles." },
-  { num: "03", icon: Eye, title: "Preview", desc: "Interactive swatches with accessibility warnings & mood analysis." },
+  { num: "03", icon: Eye, title: "Preview", desc: "Interactive swatches with accessibility warnings." },
+
   { num: "04", icon: Download, title: "Export", desc: "Copy Tailwind config, CSS vars, or download the full palette." },
 ];
 
@@ -421,11 +421,9 @@ const Index = () => {
               className="space-y-8"
             >
               <SwatchGrid colors={result.palette} />
-              <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
-                <MoodBadge mood={result.mood} />
-                <AccessibilityWarnings warnings={result.accessibility} />
-              </div>
+              <AccessibilityWarnings warnings={result.accessibility} />
               <PaletteOutputTabs result={result} />
+
               <div className="text-center">
                 <button
                   onClick={handleReset}
@@ -440,10 +438,8 @@ const Index = () => {
         </div>
       </section>
 
-      {/* ───── TESTIMONIALS ───── */}
-      <div id="testimonials">
-        <Testimonials />
-      </div>
+
+
 
       {/* ───── FAQ ───── */}
       <section id="faq" className="py-20 sm:py-28 relative">
